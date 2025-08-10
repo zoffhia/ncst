@@ -16,6 +16,8 @@
     <script src="/ncst/js/flowbite.min.js"></script>
     <link rel="stylesheet" href="/ncst/css/custom_animation.css">
     <link rel="stylesheet" href="/ncst/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="/ncst/css/datatables.css">
+    <link rel="stylesheet" href="/ncst/css/datatables.min.css">
     <script src="/ncst/js/sweetalert2.min.js"></script>
     <script src="/ncst/js/logout_vue.js"></script>
 </head>

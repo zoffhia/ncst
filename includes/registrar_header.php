@@ -42,31 +42,6 @@
                     </span>
                 </a>
                 </div>
-
-                <div class="flex items-center">
-                    <div class="flex items-center ms-3">
-                        <div>
-                        <button type="button" class="flex text-sm bg-white rounded-full focus:ring-4 focus:ring-gray-300" aria-expanded="false" data-dropdown-toggle="dropdown-user">
-                            <span class="sr-only">Open user menu</span>
-                            <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
-                        </div>
-                        <!-- Dropdown menu -->
-                        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow" id="dropdown-user">
-                            <div class="px-4 py-3">
-                                <p class="text-sm text-gray-900"><?php echo isset($_SESSION['employee_name']) ? $_SESSION['employee_name'] : 'Employee User'; ?></p>
-                                <p class="text-sm font-medium text-gray-900 truncate"><?php echo isset($_SESSION['employee_email']) ? $_SESSION['employee_email'] : 'employee@ncst.edu.ph'; ?></p>
-                            </div>
-                            <ul class="py-1 text-gray-700">
-                                <li>
-                                    <a href="/ncst/logins/employee_login.php" class="block px-4 py-2 text-sm hover:bg-gray-100">Sign out</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 </nav>

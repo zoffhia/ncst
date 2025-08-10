@@ -1,5 +1,105 @@
 <?php include('includes/admin_header.php'); ?>
 
+<style>
+/* Custom DataTables Styling */
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+    background-color: white;
+}
+
+.dataTables_wrapper .dataTables_length select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151 !important;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.125rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f3f4f6 !important;
+    border-color: #9ca3af;
+    color: #111827 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #3b82f6 !important;
+    border-color: #3b82f6;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #2563eb !important;
+    border-color: #2563eb;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+.dataTables_wrapper .dataTables_processing {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length {
+        text-align: left;
+        margin-bottom: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length select {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}
+</style>
+
 <!-- Main content wrapper (beside sidebar) -->
 <div class="px-4 md:px-6 py-6 md:ml-64 mt-20" id="userManagementApp">
 
@@ -39,10 +139,11 @@
       </div>
   </div>
 
+  
     <div class="w-full flex justify-center px-4">
       <div class="w-full max-w-6xl overflow-x-auto">
         <table id="userTable" class="min-w-full text-sm text-left text-gray-800 border border-gray-300">
-                     <thead class="bg-blue-100 text-blue-900 uppercase">
+            <thead class="bg-blue-100 text-blue-900 uppercase">
              <tr>
                <th class="px-6 py-3 border">ID No.</th>
                <th class="px-6 py-3 border">Name</th>
@@ -75,7 +176,7 @@
                </td>
              </tr>
             
-                         <!-- User data -->
+              <!-- User data -->
              <tr v-for="(user, index) in users" :key="index" class="hover:bg-gray-50">
                <td class="px-6 py-3 border">{{ user.id_no }}</td>
                <td class="px-6 py-3 border">{{ user.full_name }}</td>
@@ -116,34 +217,15 @@
       </select>
       
       <!-- Admin Form -->
-      <form v-if="userForm.userType === 'admin'" @submit.prevent="addUser()">
-        <!-- Role (dependent on user type) -->
-        <select v-model="userForm.role" class="w-full border px-3 py-2 rounded mb-3" required>
-          <option value="" disabled>Select Role</option>
-          <option v-for="role in availableRoles" :key="role" :value="role">
-            {{ role.charAt(0).toUpperCase() + role.slice(1) }}
-          </option>
-        </select>
-        
-        <!-- Department -->
-        <select v-model="userForm.department" @change="updateDepartments()" class="w-full border px-3 py-2 rounded mb-3" required>
-          <option value="" disabled>Select Department</option>
-          <option v-for="dept in availableDepartments" :key="dept" :value="dept">{{ dept }}</option>
-        </select>
-        
+      <form v-if="userForm.userType === 'admin'" @submit.prevent="addUser()">        
         <!-- Common Fields -->
+        <input v-model="userForm.adminNo" type="hidden" placeholder="Admin No" class="w-full border px-3 py-2 rounded mb-3">
         <input v-model="userForm.firstName" type="text" placeholder="First Name" class="w-full border px-3 py-2 rounded mb-3" required>
         <input v-model="userForm.midName" type="text" placeholder="Middle Name" class="w-full border px-3 py-2 rounded mb-3">
         <input v-model="userForm.lastName" type="text" placeholder="Last Name" class="w-full border px-3 py-2 rounded mb-3" required>
         <input v-model="userForm.suffix" type="text" placeholder="Suffix" class="w-full border px-3 py-2 rounded mb-3">
         <input v-model="userForm.birthDate" type="date" placeholder="Birth Date" class="w-full border px-3 py-2 rounded mb-3" required>
         <input v-model="userForm.email" type="email" placeholder="Email" class="w-full border px-3 py-2 rounded mb-3" required>
-        <input v-model="userForm.password" type="password" placeholder="Password" class="w-full border px-3 py-2 rounded mb-3" required>
-        
-        <!-- Admin Fields -->
-        <div v-if="showAdminFields">
-          <input v-model="userForm.adminID" type="text" placeholder="Admin ID" class="w-full border px-3 py-2 rounded mb-3" required>
-        </div>
         
         <div class="flex justify-end space-x-2">
           <button type="button" @click="closeModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
@@ -177,11 +259,10 @@
         <input v-model="userForm.suffix" type="text" placeholder="Suffix" class="w-full border px-3 py-2 rounded mb-3">
         <input v-model="userForm.birthDate" type="date" placeholder="Birth Date" class="w-full border px-3 py-2 rounded mb-3" required>
         <input v-model="userForm.email" type="email" placeholder="Email" class="w-full border px-3 py-2 rounded mb-3" required>
-        <input v-model="userForm.password" type="password" placeholder="Password" class="w-full border px-3 py-2 rounded mb-3" required>
         
         <!-- Employee Fields -->
         <div v-if="showEmployeeFields">
-          <input v-model="userForm.empId" type="text" placeholder="Employee No" class="w-full border px-3 py-2 rounded mb-3" required>
+          <input v-model="userForm.empId" type="hidden" placeholder="Employee No" class="w-full border px-3 py-2 rounded mb-3" required>
         </div>
         
         <div class="flex justify-end space-x-2">
@@ -196,6 +277,9 @@
   </div>
 </div>
 
+<script src="/ncst/js/jquery-3.7.1.min.js"></script>
+<script src="/ncst/js/datatables.js"></script>
 <script src="/ncst/js/vue.global.js"></script>
 <script src="/ncst/js/user_mngmnt_vue.js"></script>
+
 <?php include('includes/footer.php'); ?>

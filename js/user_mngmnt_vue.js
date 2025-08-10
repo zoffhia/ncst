@@ -6,9 +6,11 @@ createApp({
             showModal: false,
             users: [],
             loading: false,
+            dataTable: null,
             userForm: {
                 userType: '',
                 role: '',
+                adminNo: '',
                 firstName: '',
                 midName: '',
                 lastName: '',
@@ -22,15 +24,11 @@ createApp({
             },
             roleOptions: {
                 admin: ['admin'],
-                employee: ['registrar', 'treasury', 'department head', 'records']
+                employee: ['registrar', 'treasury']
             },
             departmentOptions: {
                 'registrar': ['Registrar Office'],
-                'treasury': ['Treasury Office'],
-                'department head': ['Architecture and Engineering', 'Computer Science Department'],
-                'custodian': ['Records Office'],
-                'records': ['Records Office'],
-                'admin': ['Administration Office']
+                'treasury': ['Treasury Office']
             },
             message: '',
             messageType: ''
@@ -51,7 +49,7 @@ createApp({
         },
     
         showEmployeeFields() {
-            return ['registrar', 'treasury', 'clinic nurse', 'department head', 'custodian', 'records'].includes(this.userForm.role);
+            return ['registrar', 'treasury'].includes(this.userForm.role);
         },
     
         showAdminFields() {
@@ -69,6 +67,53 @@ createApp({
             this.userForm.department = '';
         },
         
+        initializeDataTable() {
+            // Destroy existing DataTable if it exists
+            if (this.dataTable) {
+                this.dataTable.destroy();
+            }
+            
+            // Initialize DataTable after Vue has rendered the content
+            this.$nextTick(() => {
+                this.dataTable = $('#userTable').DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    lengthChange: true,
+                    pageLength: 10,
+                    language: {
+                        emptyTable: "No users found.",
+                        search: "Search users:",
+                        lengthMenu: "Show _MENU_ users per page",
+                        info: "Showing _START_ to _END_ of _TOTAL_ users",
+                        infoEmpty: "Showing 0 to 0 of 0 users",
+                        infoFiltered: "(filtered from _MAX_ total users)",
+                        paginate: {
+                            first: "First",
+                            last: "Last",
+                            next: "Next",
+                            previous: "Previous"
+                        }
+                    },
+                    columnDefs: [
+                        {
+                            targets: -1, // Actions column
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    responsive: true,
+                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rtip',
+                    initComplete: function() {
+                        // Add custom styling to DataTable elements
+                        $('.dataTables_filter input').addClass('border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
+                        $('.dataTables_length select').addClass('border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
+                    }
+                });
+            });
+        },
+        
         async loadUsers() {
             this.loading = true;
       
@@ -82,11 +127,15 @@ createApp({
                 });
         
                 const data = await response.json();
+                
                 console.log('Response from server:', data);
         
                 if (data.status === 'success') {
                     this.users = data.users;
                     console.log('Users loaded:', this.users);
+                    
+                    // Initialize DataTable after data is loaded
+                    this.initializeDataTable();
                 } else {
                     console.error('Server returned error:', data.message || 'Unknown error');
                 }
@@ -125,6 +174,7 @@ createApp({
             this.userForm = {
                 userType: '',
                 role: '',
+                adminNo: '',
                 firstName: '',
                 midName: '',
                 lastName: '',
@@ -141,6 +191,15 @@ createApp({
         },
     
         async addUser() {
+            if (this.userForm.userType === 'admin') {
+                this.userForm.role = 'admin';
+                this.userForm.department = 'Admin Office';
+
+                if (!this.userForm.password) {
+                    this.userForm.password = 'ncst-admin123';
+                }
+            }
+
             if (!this.validateForm()) {
                 return;
             }
@@ -148,10 +207,12 @@ createApp({
             this.loading = true;
       
             try {
+
                 const formData = new FormData();
                 formData.append('action', 'add_user');
                 formData.append('userType', this.userForm.userType);
                 formData.append('role', this.userForm.role);
+                formData.append('adminNo', this.userForm.adminNo);
                 formData.append('firstName', this.userForm.firstName);
                 formData.append('midName', this.userForm.midName);
                 formData.append('lastName', this.userForm.lastName);
@@ -176,7 +237,13 @@ createApp({
                 const data = await response.json();
         
                 if (data.status === 'success') {
-                    this.message = data.message;
+                    let idMessage = '';
+                    if (this.userForm.userType === 'admin' && data.adminNo) {
+                        idMessage = `<br><strong>Admin No:</strong> ${data.adminNo}`;
+                    } else if (this.userForm.userType === 'employee' && this.userForm.empId) {
+                        idMessage = `<br><strong>Employee ID:</strong> ${this.userForm.empId}`;
+                    }
+                    this.message = `${data.message}${idMessage}`;
                     this.messageType = 'success';
                     await this.loadUsers();
                     setTimeout(() => {
@@ -208,7 +275,7 @@ createApp({
                 return false;
             }
       
-            if (!this.userForm.firstName || !this.userForm.lastName || !this.userForm.email || !this.userForm.password) {
+            if (!this.userForm.firstName || !this.userForm.lastName || !this.userForm.email) {
                 this.message = 'Please fill in all required fields.';
                 this.messageType = 'error';
                 return false;
@@ -216,18 +283,6 @@ createApp({
       
             if (!this.userForm.department) {
                 this.message = 'Please select a department.';
-                this.messageType = 'error';
-                return false;
-            }
-      
-            if (this.showEmployeeFields && !this.userForm.empId) {
-                this.message = 'Please fill in the employee ID.';
-                this.messageType = 'error';
-                return false;
-            }
-      
-            if (this.showAdminFields && !this.userForm.adminID) {
-                this.message = 'Please fill in the admin ID.';
                 this.messageType = 'error';
                 return false;
             }
@@ -255,7 +310,6 @@ createApp({
                 suffix: user.full_name.split(' ')[3] || '',
                 birthDate: user.birthDate,
                 email: user.email,
-                password: '', // Don't populate password for security
                 adminID: user.user_type === 'admin' ? user.id_no : '',
                 empId: user.user_type === 'employee' ? user.id_no : '',
                 department: user.department

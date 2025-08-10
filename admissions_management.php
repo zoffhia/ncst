@@ -1,5 +1,5 @@
 <?php 
-include('includes/records_header.php');
+include('includes/registrar_header.php');
 ?>
 
 <!-- Vue.js App Container -->

@@ -22,18 +22,6 @@
       <p class="text-3xl font-bold text-blue-950" id="studentCount">Loading...</p>
     </div>
 
-    <!-- Records -->
-    <div class="bg-blue-300 rounded-lg shadow p-5 animation-fade-bottom">
-      <h2 class="text-sm font-medium text-blue-950 uppercase mb-1">Records/Custodian</h2>
-      <p class="text-3xl font-bold text-blue-900" id="recordsCount">Loading...</p>
-    </div>
-
-    <!-- Department Heads -->
-    <div class="bg-yellow-100 rounded-lg shadow p-5 animation-fade-bottom">
-      <h2 class="text-sm font-medium text-yellow-800 uppercase mb-1">Department Heads</h2>
-      <p class="text-3xl font-bold text-yellow-900" id="departmentHeadCount">Loading...</p>
-    </div>
-
     <!-- Registrars -->
     <div class="bg-yellow-200 rounded-lg shadow p-5 animation-fade-bottom">
       <h2 class="text-sm font-medium text-yellow-900 uppercase mb-1">Registrars</h2>
@@ -70,8 +58,6 @@
     .then(data => {
       document.getElementById('totalUsers').textContent = data.total_users;
       document.getElementById('studentCount').textContent = data.students;
-      document.getElementById('recordsCount').textContent = data.records;
-      document.getElementById('departmentHeadCount').textContent = data.department_heads;
       document.getElementById('registrarCount').textContent = data.registrars;
       document.getElementById('treasuryCount').textContent = data.treasury;
     })
@@ -80,8 +66,6 @@
       // Set default values if there's an error
       document.getElementById('totalUsers').textContent = '0';
       document.getElementById('studentCount').textContent = '0';
-      document.getElementById('recordsCount').textContent = '0';
-      document.getElementById('departmentHeadCount').textContent = '0';
       document.getElementById('registrarCount').textContent = '0';
       document.getElementById('treasuryCount').textContent = '0';
     });
@@ -103,8 +87,8 @@
   }
 
     const roleOptions = {
-    student: ['student', 'student assistant'],
-    employee: ['registrar', 'treasury', 'department head', 'custodian', 'records', 'admin']
+    student: ['student'],
+    employee: ['registrar', 'treasury', 'admin']
   };
 
   function updateRoles() {
@@ -132,13 +116,13 @@
     dynamicFields.innerHTML = ''; // Clear previous
 
     // Add fields based on role
-    if (role === 'student' || role === 'student assistant') {
+    if (role === 'student') {
       dynamicFields.innerHTML = `
         <input type="text" placeholder="Student ID" class="w-full border px-3 py-2 rounded mb-3" required>
         <input type="text" placeholder="Course" class="w-full border px-3 py-2 rounded mb-3" required>
         <input type="text" placeholder="Year Level" class="w-full border px-3 py-2 rounded mb-3" required>
       `;
-    } else if (role === 'registrar' || role === 'treasury' || role === 'custodian' || role === 'records') {
+    } else if (role === 'registrar' || role === 'treasury') {
       dynamicFields.innerHTML = `
         <input type="text" placeholder="Employee ID" class="w-full border px-3 py-2 rounded mb-3" required>
       `;

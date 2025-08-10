@@ -171,6 +171,19 @@
                 
                 if ($userType === 'employee') {
                     $employeeNo = $db->real_escape_string($userData['empID']);
+                                    // Generate next employeeNo in backend
+                    $currentYear = date('Y');
+                    $lastEmpQuery = "SELECT employeeNo FROM employee WHERE employeeNo LIKE '$currentYear-%' ORDER BY employeeNo DESC LIMIT 1";
+                    $lastEmpResult = $db->query($lastEmpQuery);
+
+                    if ($lastEmpResult && $lastEmpResult->num_rows > 0) {
+                        $lastEmp = $lastEmpResult->fetch_assoc();
+                        $lastNumber = intval(substr($lastEmp['employeeNo'], 5));
+                        $newNumber = $lastNumber + 1;
+                    } else {
+                        $newNumber = 1;
+                    }
+                    $employeeNo = sprintf('%s-%05d', $currentYear, $newNumber);
 
                     $userRole = '';
                     switch ($role) {
@@ -197,18 +210,37 @@
                              VALUES ('$employeeNo', '$firstName', '$midName', '$lastName', '$suffix', '$birthDate', '$email', '$userRole', '$department', '$password', NOW())";
                     
                     if ($db->query($query)) {
-                        $response = ['status' => 'success', 'message' => 'Employee added successfully!'];
+                        $response = [
+                            'status' => 'success',
+                            'message' => 'Employee added successfully!',
+                            'empId' => $employeeNo // Return the generated employeeNo
+                        ];
                     } else {
                         $response = ['status' => 'error', 'message' => 'Failed to add employee: ' . $db->error];
                     }
-                } elseif ($userType === 'admin') {
-                    $adminNo = $db->real_escape_string($userData['adminID']);
-                    
+                }elseif ($userType === 'admin') {
+                    // Generate next adminNo in backend
+                    $currentYear = date('Y');
+                    $lastAdminQuery = "SELECT adminNo FROM admin WHERE adminNo LIKE '$currentYear-%' ORDER BY adminNo DESC LIMIT 1";
+                    $lastAdminResult = $db->query($lastAdminQuery);
+
+                    if ($lastAdminResult && $lastAdminResult->num_rows > 0) {
+                        $lastAdmin = $lastAdminResult->fetch_assoc();
+                        $lastNumber = intval(substr($lastAdmin['adminNo'], 5));
+                        $newNumber = $lastNumber + 1;
+                    } else {
+                        $newNumber = 1;
+                    }
+                    $adminNo = sprintf('%s-%05d', $currentYear, $newNumber);
+
                     $query = "INSERT INTO admin (adminNo, firstName, midName, lastName, suffix, birthDate, email, user_role, department, password, dateCreated) 
-                             VALUES ('$adminNo', '$firstName', '$midName', '$lastName', '$suffix', '$birthDate', '$email', '$role', '$department', '$password', NOW())";
-                    
+                            VALUES ('$adminNo', '$firstName', '$midName', '$lastName', '$suffix', '$birthDate', '$email', '$role', '$department', '$password', NOW())";
                     if ($db->query($query)) {
-                        $response = ['status' => 'success', 'message' => 'Admin added successfully!'];
+                        $response = [
+                            'status' => 'success',
+                            'message' => 'Admin added successfully!',
+                            'adminNo' => $adminNo // Return the generated adminNo
+                        ];
                     } else {
                         $response = ['status' => 'error', 'message' => 'Failed to add admin: ' . $db->error];
                     }

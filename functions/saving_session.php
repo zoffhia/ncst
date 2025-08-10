@@ -101,18 +101,12 @@
                     'message' => 'Login successful! Welcome back, ' . $fullName . '!',
                     'redirect' => '/ncst/portals/admin_portal.php'
                 ];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'Invalid password. Please try again.'
-                ];
             }
-        } else {
-            return [
-                'status' => 'error',
-                'message' => 'Email address not found. Please check your credentials.'
-            ];
-        }
+        }      
+        return [
+            'status' => 'error',
+            'message' => 'Invalid Credentials. Please try again.'
+        ];
     }
 
     function employeeLogin($email, $password) {
@@ -146,14 +140,8 @@
                     case 'registrar':
                         $redirect_url = '/ncst/portals/registrar_portal.php';
                         break;
-                    case 'department_head':
-                        $redirect_url = '/ncst/portals/dept_head_portal.php';
-                        break;
                     case 'treasury':
                         $redirect_url = '/ncst/portals/treasury_portal.php';
-                        break;
-                    case 'records':
-                        $redirect_url = '/ncst/portals/records_portal.php';
                         break;
                     default:
                         $redirect_url = '/ncst/portals/employee_login.php';
@@ -164,18 +152,12 @@
                     'message' => 'Login successful! Welcome back, ' . $employee['firstName'] . '!',
                     'redirect' => $redirect_url
                 ];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'Invalid password. Please try again.'
-                ];
             }
-        } else {
-            return [
-                'status' => 'error',
-                'message' => 'Email address not found. Please check your credentials.'
-            ];
         }
+        return [
+            'status' => 'error',
+            'message' => 'Invalid credentials. Please try again.'
+        ];
     }
 
     function studentLogin($studentNo, $password) {
@@ -207,44 +189,12 @@
                     'message' => 'Login successful!<br>Welcome back, ' . $student['fullName'] . '!',
                     'redirect' => '/ncst/portals/student_portal.php'
                 ];
-            } else {
-                error_log("Password mismatch - Expected: " . $student['password'] . ", Received: " . $password);
-                return [
-                    'status' => 'error',
-                    'message' => 'Invalid password'
-                ];
             }
-        } else {
-            error_log("Student not found with ID: $studentNo");
-            return [
-                'status' => 'error',
-                'message' => 'Student ID not found'
-            ];
         }
-    }
-
-    function adminLogout() {
-        session_unset();
-        session_destroy();
-
-        header('Location: /ncst/index.php');
-        exit();
-    }
-
-    function employeeLogout() {
-        session_unset();
-        session_destroy();
-
-        header('Location: /ncst/index.php');
-        exit();
-    }
-
-    function studentLogout() {
-        session_unset();
-        session_destroy();
-
-        header('Location: /ncst/index.php');
-        exit();
+        return [
+            'status' => 'error',
+            'message' => 'Invalid credentials. Please try again.'
+        ];
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
@@ -322,7 +272,7 @@
         
         switch ($userType) {
             case 'admin':
-                $redirectUrl = '/ncst/index.php';
+                $redirectUrl = '/ncst/logins/admin_login.php';
                 break;
             case 'employee':
                 $redirectUrl = '/ncst/index.php';
