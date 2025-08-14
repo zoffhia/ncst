@@ -223,36 +223,7 @@
                 <h4 class="font-semibold mb-4">Desired Course</h2>
                 <select v-model="student.course" name="course" id="selectCourse" class="w-full border border-gray-300 p-2 rounded">
                     <option value="0" disabled selected>Select a course</option>
-                    <option value="BAC">Bachelor of Arts in Communication</option>
-                    <option value="ACT">Associate in Computer Technology</option>
-                    <option value="AOM">Associate in Office Management</option>
-                    <option value="BSA">Bachelor of Science in Architecture</option>
-                    <option value="BSBA-OM">Bachelor of Science in Business Administration-Operations Management</option>
-                    <option value="BSEE">Bachelor of Science in Electronics Engineering</option>
-                    <option value="BSE">Bachelor of Science in Entrepreneurship</option>
-                    <option value="BSHM">Bachelor of Science in Hospitality Management</option>
-                    <option value="BSIE">Bachelor of Science in Industrial Engineering</option>
-                    <option value="BSISM">Bachelor of Science in Industrial Security Management</option>
-                    <option value="BSMA">Bachelor of Science in Management Accounting</option>
-                    <option value="BSPA">Bachelor of Science in Public Administration</option>
-                    <option value="BSREM">Bachelor of Science in Real Estate Management</option>
-                    <option value="BSAc">Bachelor of Science in Accountancy</option>
-                    <option value="BSCpE">Bachelor of Science in Computer Engineering</option>
-                    <option value="BSCS">Bachelor of Science in Computer Science</option>
-                    <option value="BSCrim">Bachelor of Science in Criminology</option>
-                    <option value="BSCA">Bachelor of Science in Customs Administration</option>
-                    <option value="BSIT">Bachelor of Science in Information Technology</option>
-                    <option value="BSOA">Bachelor of Science in Office Administration</option>
-                    <option value="BSPsy">Bachelor of Science in Psychology</option>
-                    <option value="BSTM">Bachelor of Science in Tourism Management</option>
-                    <option value="BSBA-FM">Bachelor of Science in Business Administration Major in Financial Management</option>
-                    <option value="BSBA-MM">Bachelor of Science in Business Administration Major in Marketing-Management</option>
-                    <option value="BSED-Eng">Bachelor of Secondary Education Major in English</option>
-                    <option value="BSED-Fil">Bachelor of Secondary Education Major in Filipino</option>
-                    <option value="BSED-Math">Bachelor of Secondary Education Major in Mathematics</option>
-                    <option value="BSED-SS">Bachelor of Secondary Education Major in Social Studies</option>
-                    <option value="PEU">Professional Educational Units</option>
-                    <option value="TCP">Teacher Certificate Program</option>
+                    <option v-for="program in programs" :key="program.id" :value="program.code">{{ program.name }} ({{ program.code }})</option>
                 </select>
 
                 <h4 class="font-semibold mb-4 mt-5">Year Level</h2>

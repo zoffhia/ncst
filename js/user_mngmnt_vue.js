@@ -4,6 +4,7 @@ createApp({
     data() {
         return {
             showModal: false,
+            isEditing: false,
             users: [],
             loading: false,
             dataTable: null,
@@ -68,49 +69,62 @@ createApp({
         },
         
         initializeDataTable() {
-            // Destroy existing DataTable if it exists
             if (this.dataTable) {
-                this.dataTable.destroy();
+                try {
+                    this.dataTable.destroy();
+                } catch (e) {
+                }
             }
-            
-            // Initialize DataTable after Vue has rendered the content
+            this.dataTable = null;
+
             this.$nextTick(() => {
-                this.dataTable = $('#userTable').DataTable({
-                    paging: true,
-                    searching: true,
-                    ordering: true,
-                    info: true,
-                    lengthChange: true,
-                    pageLength: 10,
-                    language: {
-                        emptyTable: "No users found.",
-                        search: "Search users:",
-                        lengthMenu: "Show _MENU_ users per page",
-                        info: "Showing _START_ to _END_ of _TOTAL_ users",
-                        infoEmpty: "Showing 0 to 0 of 0 users",
-                        infoFiltered: "(filtered from _MAX_ total users)",
-                        paginate: {
-                            first: "First",
-                            last: "Last",
-                            next: "Next",
-                            previous: "Previous"
+                setTimeout(() => {
+                    const tableElement = $('#userTable');
+                    if (tableElement.length > 0) {
+                        try {
+                            this.dataTable = tableElement.DataTable({
+                                paging: true,
+                                searching: true,
+                                ordering: true,
+                                info: true,
+                                lengthChange: true,
+                                pageLength: 10,
+                                language: {
+                                    emptyTable: "No users found.",
+                                    search: "Search users:",
+                                    lengthMenu: "Show _MENU_ users per page",
+                                    info: "Showing _START_ to _END_ of _TOTAL_ users",
+                                    infoEmpty: "Showing 0 to 0 of 0 users",
+                                    infoFiltered: "(filtered from _MAX_ total users)",
+                                    paginate: {
+                                        first: "First",
+                                        last: "Last",
+                                        next: "Next",
+                                        previous: "Previous"
+                                    }
+                                },
+                                columnDefs: [
+                                    {
+                                        targets: -1, // Actions column
+                                        orderable: false,
+                                        searchable: false
+                                    }
+                                ],
+                                responsive: true,
+                                dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rtip',
+                                initComplete: function() {
+                                    // Add custom styling to DataTable elements
+                                    $('.dataTables_filter input').addClass('border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
+                                    $('.dataTables_length select').addClass('border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
+                                }
+                            });
+                        } catch (e) {
+
                         }
-                    },
-                    columnDefs: [
-                        {
-                            targets: -1, // Actions column
-                            orderable: false,
-                            searchable: false
-                        }
-                    ],
-                    responsive: true,
-                    dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"lf>rtip',
-                    initComplete: function() {
-                        // Add custom styling to DataTable elements
-                        $('.dataTables_filter input').addClass('border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
-                        $('.dataTables_length select').addClass('border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500');
+                    } else {
+
                     }
-                });
+                }, 100);
             });
         },
         
@@ -127,21 +141,19 @@ createApp({
                 });
         
                 const data = await response.json();
-                
-                console.log('Response from server:', data);
         
                 if (data.status === 'success') {
                     this.users = data.users;
-                    console.log('Users loaded:', this.users);
-                    
-                    // Initialize DataTable after data is loaded
-                    this.initializeDataTable();
+
+                    setTimeout(() => {
+                        this.initializeDataTable();
+                    }, 100);
                 } else {
-                    console.error('Server returned error:', data.message || 'Unknown error');
+
                 }
         
             } catch (error) {
-                console.error('Error loading users:', error);
+
             } finally {
                 this.loading = false;
             }
@@ -161,6 +173,7 @@ createApp({
         },
     
         openModal() {
+            this.isEditing = false;
             this.showModal = true;
             this.resetForm();
         },
@@ -186,6 +199,7 @@ createApp({
                 empId: '',
                 department: ''
             };
+            this.isEditing = false;
             this.message = '';
             this.messageType = '';
         },
@@ -261,7 +275,55 @@ createApp({
                 this.loading = false;
             }
         },
-    
+     
+        async updateUser() {
+            if (!this.validateForm()) {
+                return;
+            }
+       
+            this.loading = true;
+       
+            try {
+                const formData = new FormData();
+                formData.append('action', 'update_user');
+                formData.append('userType', this.userForm.userType);
+                formData.append('userId', this.userForm.userType === 'admin' ? this.userForm.adminID : this.userForm.empId);
+                formData.append('role', this.userForm.role);
+                formData.append('firstName', this.userForm.firstName);
+                formData.append('midName', this.userForm.midName);
+                formData.append('lastName', this.userForm.lastName);
+                formData.append('suffix', this.userForm.suffix);
+                formData.append('birthDate', this.userForm.birthDate);
+                formData.append('email', this.userForm.email);
+                formData.append('department', this.userForm.department);
+         
+                const response = await fetch('/ncst/functions/user_count_functions.php', {
+                    method: 'POST',
+                    body: formData
+                });
+         
+                const data = await response.json();
+         
+                if (data.status === 'success') {
+                    this.message = data.message;
+                    this.messageType = 'success';
+                    await this.loadUsers();
+                    setTimeout(() => {
+                        this.closeModal();
+                    }, 3000);
+                } else {
+                    this.message = 'Error: ' + data.message;
+                    this.messageType = 'error';
+                }
+         
+            } catch (error) {
+                this.message = 'An error occurred while updating the user: ' + error.message;
+                this.messageType = 'error';
+            } finally {
+                this.loading = false;
+            }
+        },
+     
         validateForm() {
             if (!this.userForm.userType) {
                 this.message = 'Please select a user type.';
@@ -300,14 +362,13 @@ createApp({
         },
 
         editUser(user) {
-            // Populate the form with user data
             this.userForm = {
                 userType: user.user_type,
                 role: user.role,
-                firstName: user.full_name.split(' ')[0] || '',
-                midName: user.full_name.split(' ')[1] || '',
-                lastName: user.full_name.split(' ')[2] || '',
-                suffix: user.full_name.split(' ')[3] || '',
+                firstName: user.firstName || '',
+                midName: user.midName || '',
+                lastName: user.lastName || '',
+                suffix: user.suffix || '',
                 birthDate: user.birthDate,
                 email: user.email,
                 adminID: user.user_type === 'admin' ? user.id_no : '',
@@ -315,6 +376,7 @@ createApp({
                 department: user.department
             };
             
+            this.isEditing = true;
             this.showModal = true;
         },
 
@@ -341,7 +403,6 @@ createApp({
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    // Reload users to reflect the change
                     await this.loadUsers();
                 } else {
                     alert('Error: ' + data.message);

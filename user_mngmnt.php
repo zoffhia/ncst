@@ -159,7 +159,7 @@
            </thead>
           
           <tbody>
-                         <!-- Loading state -->
+                                     <!-- Loading state -->
              <tr v-if="loading">
                <td colspan="10" class="px-6 py-4 text-center">
                  <div class="flex items-center justify-center">
@@ -203,9 +203,9 @@
   </div>
 
   <!-- Vue.js Modal -->
-  <div v-if="showModal" class="fixed inset-0 z-50 backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center">
+  <div v-if="showModal" class="fixed inset-0 z-50 backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center" style="display: none;" :style="{ display: showModal ? 'flex' : 'none' }">
     <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto">
-      <h2 class="text-xl font-bold mb-4">Add User</h2>
+      <h2 class="text-xl font-bold mb-4">{{ isEditing ? 'Edit User' : 'Add User' }}</h2>
       <div v-if="message" :class="messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="p-3 rounded mb-4">
         {{ message }}
       </div>
@@ -217,7 +217,7 @@
       </select>
       
       <!-- Admin Form -->
-      <form v-if="userForm.userType === 'admin'" @submit.prevent="addUser()">        
+      <form v-if="userForm.userType === 'admin'" @submit.prevent="isEditing ? updateUser() : addUser()">
         <!-- Common Fields -->
         <input v-model="userForm.adminNo" type="hidden" placeholder="Admin No" class="w-full border px-3 py-2 rounded mb-3">
         <input v-model="userForm.firstName" type="text" placeholder="First Name" class="w-full border px-3 py-2 rounded mb-3" required>
@@ -230,14 +230,14 @@
         <div class="flex justify-end space-x-2">
           <button type="button" @click="closeModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
           <button type="submit" :disabled="loading" class="px-4 py-2 rounded bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50">
-            <span v-if="loading">Adding...</span>
-            <span v-else>Add</span>
+            <span v-if="loading">{{ isEditing ? 'Saving...' : 'Adding...' }}</span>
+            <span v-else>{{ isEditing ? 'Save' : 'Add' }}</span>
           </button>
         </div>
       </form>
       
       <!-- Employee Form -->
-      <form v-else-if="userForm.userType === 'employee'" @submit.prevent="addUser()">
+      <form v-else-if="userForm.userType === 'employee'" @submit.prevent="isEditing ? updateUser() : addUser()">
         <!-- Role (dependent on user type) -->
         <select v-model="userForm.role" @change="updateDepartments()" class="w-full border px-3 py-2 rounded mb-3" required>
           <option value="" disabled>Select Role</option>
@@ -268,8 +268,8 @@
         <div class="flex justify-end space-x-2">
           <button type="button" @click="closeModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
           <button type="submit" :disabled="loading" class="px-4 py-2 rounded bg-blue-700 text-white hover:bg-blue-800 disabled:opacity-50">
-            <span v-if="loading">Adding...</span>
-            <span v-else>Add</span>
+            <span v-if="loading">{{ isEditing ? 'Saving...' : 'Adding...' }}</span>
+            <span v-else>{{ isEditing ? 'Save' : 'Add' }}</span>
           </button>
         </div>
       </form>

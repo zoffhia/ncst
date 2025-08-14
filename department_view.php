@@ -34,7 +34,14 @@
     <!-- Departments List -->
     <div v-show="showDepartments" class="mt-6">
         <div class="w-full max-w-2xl sm:max-w-3xl md:max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-4 sm:p-6">
-            <h2 class="text-xl font-bold mb-4">{{ departmentTitle }}</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">{{ departmentTitle }}</h2>
+                <div class="flex space-x-2">
+                    <button @click="loadDepartments(currentDeptType)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">Refresh</button>
+                    <button v-if="currentDeptType === 'academic'" @click="addAcademicDepartment()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Add Department</button>
+                    <button v-if="currentDeptType === 'non-academic'" @click="addNonAcademicDepartment()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Add Department</button>
+                </div>
+            </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left border border-gray-200">
                     <thead class="bg-gray-100 text-gray-700">
@@ -49,7 +56,7 @@
                             <td class="px-2 sm:px-4 md:px-6 py-3">{{ dept.name }}</td>
                             <td class="px-2 sm:px-4 md:px-6 py-3">{{ dept.type }}</td>
                             <td class="px-2 sm:px-4 md:px-6 py-3 space-x-2">
-                                <button v-if="currentDeptType === 'academic'" @click="viewPrograms()" class='px-3 py-1 bg-blue-700 text-white rounded hover:bg-blue-800'>View Programs</button>
+                                <button v-if="currentDeptType === 'academic'" @click="viewPrograms(dept)" class='px-3 py-1 bg-blue-700 text-white rounded hover:bg-blue-800'>View Programs</button>
                                 <button v-if="currentDeptType === 'academic'" @click="editAcademicDepartment(index)" class='px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600'>Edit</button>
                                 <button v-if="currentDeptType === 'non-academic'" @click="viewEmployees(dept.name)" class='px-3 py-1 bg-blue-700 text-white rounded hover:bg-blue-800'>View Employees</button>
                                 <button v-if="currentDeptType === 'non-academic'" @click="editNonAcademicDepartment(index)" class='px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600'>Edit</button>
@@ -129,6 +136,13 @@
 
             <!-- Programs Table -->
             <div v-else-if="modalType === 'programs-table'" class='overflow-x-auto'>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Programs</h3>
+                    <div class="flex space-x-2">
+                        <button @click="loadPrograms(selectedDepartment.id)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">Refresh</button>
+                        <button @click="addProgram()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">Add Program</button>
+                    </div>
+                </div>
                 <table class="min-w-full text-sm text-left border border-gray-200">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>
@@ -154,6 +168,10 @@
 
             <!-- Employees Table -->
             <div v-else-if="modalType === 'employees-table'" class='overflow-x-auto'>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Employees</h3>
+                    <button @click="viewEmployees(selectedDepartment.name)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">Refresh</button>
+                </div>
                 <table class="min-w-full text-sm text-left border border-gray-200">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>

@@ -98,16 +98,20 @@
             
             $users = [];
 
-            $employeeQuery = "SELECT 
+            $employeeQuery = "SELECT
                 'employee' as user_type,
                 employeeNo as id_no,
+                firstName,
+                midName,
+                lastName,
+                suffix,
                 CONCAT(firstName, ' ', COALESCE(midName, ''), ' ', lastName, ' ', COALESCE(suffix, '')) as full_name,
                 birthDate,
                 email,
                 user_role as role,
                 department,
                 dateCreated,
-                CASE 
+                CASE
                     WHEN status = 1 THEN 'Active'
                     ELSE 'Inactive'
                 END as status
@@ -121,16 +125,20 @@
                 }
             }
 
-            $adminQuery = "SELECT 
+            $adminQuery = "SELECT
                 'admin' as user_type,
                 adminNo as id_no,
+                firstName,
+                midName,
+                lastName,
+                suffix,
                 CONCAT(firstName, ' ', COALESCE(midName, ''), ' ', lastName, ' ', COALESCE(suffix, '')) as full_name,
                 birthDate,
                 email,
                 user_role as role,
                 department,
                 dateCreated,
-                CASE 
+                CASE
                     WHEN status = 1 THEN 'Active'
                     ELSE 'Inactive'
                 END as status
@@ -288,9 +296,108 @@
             return $response;
         }
 
+        function updateUser($userData) {
+            global $db;
+
+            
+            $response = ['status' => 'error', 'message' => 'Unknown error occurred'];
+            
+            try {
+                if (!isset($userData['userType']) || !isset($userData['userId'])) {
+                    return ['status' => 'error', 'message' => 'Missing required fields: userType or userId'];
+                }
+                
+                $userType = $userData['userType'];
+                $userId = $userData['userId'];
+
+                $requiredFields = ['firstName', 'lastName', 'email', 'role', 'department', 'birthDate'];
+                foreach ($requiredFields as $field) {
+                    if (!isset($userData[$field])) {
+                        return ['status' => 'error', 'message' => 'Missing required field: ' . $field];
+                    }
+                }
+                
+                $firstName = $db->real_escape_string($userData['firstName']);
+                $midName = isset($userData['midName']) ? $db->real_escape_string($userData['midName']) : '';
+                $lastName = $db->real_escape_string($userData['lastName']);
+                $suffix = isset($userData['suffix']) ? $db->real_escape_string($userData['suffix']) : '';
+                $birthDate = $db->real_escape_string($userData['birthDate']);
+                $email = $db->real_escape_string($userData['email']);
+                $role = $db->real_escape_string($userData['role']);
+                $department = $db->real_escape_string($userData['department']);
+                
+                if ($userType === 'employee') {
+                    $userRole = '';
+                    switch ($role) {
+                        case 'registrar':
+                            $userRole = 'registrar';
+                            break;
+                        case 'treasury':
+                            $userRole = 'treasury';
+                            break;
+                        case 'department head':
+                            $userRole = 'department_head';
+                            break;
+                        case 'custodian':
+                            $userRole = 'custodian';
+                            break;
+                        case 'records':
+                            $userRole = 'records';
+                            break;
+                        default:
+                            $userRole = $role;
+                    }
+                    
+                    $query = "UPDATE employee SET
+                                firstName = '$firstName',
+                                midName = '$midName',
+                                lastName = '$lastName',
+                                suffix = '$suffix',
+                                birthDate = '$birthDate',
+                                email = '$email',
+                                user_role = '$userRole',
+                                department = '$department'
+                              WHERE employeeNo = '$userId'";
+                    
+                    if ($db->query($query)) {
+                        $response = ['status' => 'success', 'message' => 'Employee updated successfully!'];
+                    } else {
+                        $response = ['status' => 'error', 'message' => 'Failed to update employee: ' . $db->error];
+                    }
+                } elseif ($userType === 'admin') {
+                    $query = "UPDATE admin SET
+                                firstName = '$firstName',
+                                midName = '$midName',
+                                lastName = '$lastName',
+                                suffix = '$suffix',
+                                birthDate = '$birthDate',
+                                email = '$email',
+                                user_role = '$role',
+                                department = '$department'
+                              WHERE adminNo = '$userId'";
+                    
+                    if ($db->query($query)) {
+                        $response = ['status' => 'success', 'message' => 'Admin updated successfully!'];
+                    } else {
+                        $response = ['status' => 'error', 'message' => 'Failed to update admin: ' . $db->error];
+                    }
+                } else {
+                    $response = ['status' => 'error', 'message' => 'Invalid user type'];
+                }
+                
+            } catch (Exception $e) {
+                $response = ['status' => 'error', 'message' => 'Exception: ' . $e->getMessage()];
+            }
+            
+            return $response;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ob_clean();
-            
+
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
             header('Content-Type: application/json');
             
             switch ($_POST['action']) {
@@ -317,6 +424,11 @@
                     
                 case 'toggle_user_status':
                     $result = toggleUserStatus($_POST['userType'], $_POST['userId'], $_POST['newStatus']);
+                    echo json_encode($result);
+                    break;
+                    
+                case 'update_user':
+                    $result = updateUser($_POST);
                     echo json_encode($result);
                     break;
                     

@@ -2,6 +2,9 @@
 include_once('../includes/config.php');
 include_once('admission_functions.php');
 
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'get_student_details') {

@@ -37,7 +37,6 @@ createApp({
                 
                 if (data.status === 'success') {
                     this.studentInfo = data.data;
-                    this.showMessage('Student found successfully!', 'success');
                 } else {
                     this.studentInfo = null;
                     this.showMessage('No student found with the provided Student Number', 'error');

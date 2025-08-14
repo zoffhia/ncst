@@ -68,7 +68,8 @@ window.__admissionApp__ = createApp({
             loading: false,
             message: '',
             messageType: '',
-            formSubmitted: false
+            formSubmitted: false,
+            programs: []
         }
     },
     
@@ -77,10 +78,31 @@ window.__admissionApp__ = createApp({
     },
     
     methods: {
-        // Email validation
         isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
+        },
+        
+        async loadPrograms() {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'get_all_programs_with_departments');
+
+                const response = await fetch(`/ncst/functions/department_functions.php?t=${new Date().getTime()}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    this.programs = data.data;
+                } else {
+                    console.error('Error loading programs:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading programs:', error);
+            }
         },
 
         nextStep() {
@@ -393,18 +415,18 @@ window.__admissionApp__ = createApp({
     
     mounted() {
         this.loadSavedData();
-
+        
         setInterval(() => {
             if (!this.formSubmitted) {
                 this.autoSave();
             }
         }, 30000);
 
-        // Initialize the first step
         this.currentStep = 0;
         this.syncWithNavigation();
         this.updateStepper();
-
+        
         this.fixAriaHiddenIssues();
+        this.loadPrograms();
     }
-}).mount('#admissionApp'); 
+}).mount('#admissionApp');

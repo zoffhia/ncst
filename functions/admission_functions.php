@@ -456,6 +456,11 @@ function searchStudentById($studentId) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('Content-Type: application/json');
+    
     $response = [];
     
     switch ($_POST['action']) {
@@ -463,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $student = json_decode($_POST['student'], true);
             $education = json_decode($_POST['education'], true);
             $parent = json_decode($_POST['parent'], true);
-
+            
             $response = insertAdmission($student, $education, $parent);
             break;
         case 'get_all_student_registrations':
@@ -504,7 +509,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ];
     }
     
-    header('Content-Type: application/json');
     echo json_encode($response);
     exit;
 }

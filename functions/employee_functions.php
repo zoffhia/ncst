@@ -134,6 +134,11 @@ function getEmployeeDetails($employeeID) {
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('Content-Type: application/json');
+    
     $response = [];
     
     switch ($_POST['action']) {
@@ -155,7 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ];
     }
     
-    header('Content-Type: application/json');
     echo json_encode($response);
     exit;
 }
