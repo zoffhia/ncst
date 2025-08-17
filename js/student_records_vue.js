@@ -8,8 +8,16 @@ createApp({
             loading: false,
             hasSearched: false,
             message: '',
-            messageType: ''
+            messageType: '',
+            enrolledStudents: [],
+
+            mounted() {
+            this.fetchEnrolledStudents(); // Auto-load enrolled list
+}
+
         }
+
+        
     },
 
     methods: {
@@ -83,24 +91,6 @@ createApp({
                 });
             } catch (error) {
                 return 'Invalid date';
-            }
-        },
-        toggleExportDropdown() {
-            this.showExportDropdown = !this.showExportDropdown;
-        },
-        exportAs(type) {
-            this.showMessage(`Exporting as ${type} (not yet implemented)`, 'info');
-            this.showExportDropdown = false;
-        },
-        handleClickOutside(event) {
-            // Only close if dropdown is open
-            if (!this.showExportDropdown) return;
-            // Find the dropdown and export button
-            const dropdown = document.getElementById('exportDropdown');
-            const exportBtn = document.getElementById('exportBtn');
-            if (!dropdown || !exportBtn) return;
-            if (!dropdown.contains(event.target) && !exportBtn.contains(event.target)) {
-                this.showExportDropdown = false;
             }
         }
     }

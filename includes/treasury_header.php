@@ -88,8 +88,5 @@
             </li>
         </ul>
 
-        <div class="mask-t-from-25% bg-[url('/ncst/img/pattern1.jpg')] bg-cover bg-repeat bg-center h-24 w-full flex-grow-0 m-0 p-0 opacity-25"></div>
-        <div class="mask-t-from-100% bg-[url('/ncst/img/pattern1.jpg')] bg-cover bg-repeat bg-center h-24 w-full flex-grow-0 m-0 p-0 opacity-50 -scale-x-100"></div>          
-        <div class="mask-t-from-100% bg-[url('/ncst/img/pattern1.jpg')] bg-cover bg-repeat bg-center h-24 w-full flex-grow-0 m-0 p-0 opacity-60"></div>
     </div>
 </aside>
