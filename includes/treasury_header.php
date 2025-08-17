@@ -67,7 +67,7 @@
                 </svg>
             </div>
 
-            <h2 class="text-lg font-semibold text-white">Record Officer's Full Name</h2>
+            <h2 class="text-lg font-semibold text-white">Treasury Officer's Full Name</h2>
             <p class="text-sm text-gray-300">Email Address</p>
             <hr>
         </div>
@@ -75,31 +75,11 @@
         <!-- Menu -->
         <ul class="space-y-2 font-medium mt-4 flex-1">
             <li>
-                <a href="/ncst/portals/records_portal.php" class="flex items-center justify-start gap-2 text-white p-3 rounded-lg hover:bg-blue-800">
-                    <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
-                        <path fill="currentColor" fill-rule="evenodd" d="M42.667 85.332h426.666v341.333H42.667zm192 256h42.666v21.333h-42.666zm106.666-64h-42.666v85.333h42.666zm21.334-42.667h42.666v128h-42.666zm64-106.666H85.333v42.666h341.334zm-192 160c0 41.237-33.43 74.666-74.667 74.666s-74.667-33.429-74.667-74.666c0-41.238 33.43-74.667 74.667-74.667s74.667 33.429 74.667 74.667m-51.394-47.988A53.3 53.3 0 0 0 160 234.665v53.334l51.862 12.44a53.336 53.336 0 0 0-28.589-60.428" clip-rule="evenodd"/>
-                    </svg>
-                    <span>Dashboard</span>
+                <a href="/ncst/portals/treasury_portal.php" class="flex items-center justify-start gap-2 text-white p-3 rounded-lg hover:bg-blue-800">
+                    <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 28 28"><path fill="currentColor" d="M5.754 5a3.75 3.75 0 0 0-3.75 3.75v.75H26v-.75A3.75 3.75 0 0 0 22.25 5zm-3.75 14.25V11H26v8.25A3.75 3.75 0 0 1 22.25 23H5.755a3.75 3.75 0 0 1-3.75-3.75M18.25 16.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5z"/></svg>
+                    <span>Payments</span>
                 </a>
             </li>
-            <li>
-                <a href="/ncst/requirements_management.php" class="flex items-center justify-start gap-2 text-white p-3 rounded-lg hover:bg-blue-800">
-                    <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 512 512">
-                        <path fill="currentColor" fill-rule="evenodd" d="M42.667 85.332h426.666v341.333H42.667zm192 256h42.666v21.333h-42.666zm106.666-64h-42.666v85.333h42.666zm21.334-42.667h42.666v128h-42.666zm64-106.666H85.333v42.666h341.334zm-192 160c0 41.237-33.43 74.666-74.667 74.666s-74.667-33.429-74.667-74.666c0-41.238 33.43-74.667 74.667-74.667s74.667 33.429 74.667 74.667m-51.394-47.988A53.3 53.3 0 0 0 160 234.665v53.334l51.862 12.44a53.336 53.336 0 0 0-28.589-60.428" clip-rule="evenodd"/>
-                    </svg>
-                    <span>Manage Requirements</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="/ncst/accountability_management.php" class="flex items-center justify-start gap-2 text-white p-3 rounded-lg hover:bg-blue-800">
-                <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 16 16">
-                    <path fill="currentColor" d="M7.292 1.712c.418-.32.999-.32 1.417 0l4.962 3.793c.632.483.293 1.491-.501 1.495H2.83c-.793-.004-1.133-1.012-.5-1.495zM8 5.25a.75.75 0 1 0 0-1.5a.75.75 0 0 0 0 1.5M3.5 8v3H5V8zM6 8v3h1.5V8zm2.5 0v3H10V8zM11 8v3h1.5V8zm-9 5.25c0-.69.56-1.25 1.25-1.25h9.5c.69 0 1.25.56 1.25 1.25v.25a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5z"/>
-                </svg>
-                <span>Manage Accountabilities</span>
-                </a>
-            </li>
-
             <li>
                 <a href="#" class="flex items-center justify-start gap-2 text-white p-3 rounded-lg hover:bg-blue-800">
                 <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2"/><path d="M9 12h12l-3-3m0 6l3-3"/></g></svg>

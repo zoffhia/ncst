@@ -10,16 +10,25 @@ const LogoutHandler = {
     determineUserType() {
         const currentPath = window.location.pathname;
         
-        if (currentPath.includes('admin') || currentPath.includes('user_mngmnt')) {
+        // Check for specific portal URLs first
+        if (currentPath.includes('/portals/admin_portal.php') || currentPath.includes('admin') || currentPath.includes('user_mngmnt')) {
             this.userType = 'admin';
             this.logoutUrl = '/ncst/functions/saving_session.php';
-        } else if (currentPath.includes('employee') || currentPath.includes('dept')) {
+        } else if (currentPath.includes('/portals/registrar_portal.php') ||
+                  currentPath.includes('/portals/treasury_portal.php') ||
+                  currentPath.includes('/portals/dept_head_portal.php') ||
+                  currentPath.includes('employee') ||
+                  currentPath.includes('dept')) {
             this.userType = 'employee';
             this.logoutUrl = '/ncst/functions/saving_session.php';
-        } else if (currentPath.includes('student') || currentPath.includes('enrollment')) {
+        } else if (currentPath.includes('/portals/student_portal.php') ||
+                  currentPath.includes('student') ||
+                  currentPath.includes('enrollment')) {
             this.userType = 'student';
             this.logoutUrl = '/ncst/functions/saving_session.php';
         } else {
+            // Fallback - try to determine from session if possible
+            // As a last resort, default to admin
             this.userType = 'admin';
             this.logoutUrl = '/ncst/functions/saving_session.php';
         }

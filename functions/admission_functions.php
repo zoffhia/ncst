@@ -502,6 +502,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $studentNo = $_POST['studentNo'];
             $response = searchStudentById($studentNo);
             break;
+        case 'get_all_enrolled_students':
+            $response = getAllEnrolledStudents();
+            break;
+        case 'search_students_by_no_pattern':
+            $studentNoPattern = $_POST['studentNoPattern'];
+            $response = searchStudentsByNoPattern($studentNoPattern);
+            break;
         default:
             $response = [
                 'status' => 'error',
@@ -512,4 +519,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     echo json_encode($response);
     exit;
 }
+
+/**
+ * Get all enrolled students
+ * @return array - Array of enrolled students
+ */
+function getAllEnrolledStudents() {
+    global $db;
+    
+    try {
+        $query = "SELECT
+            studentNo,
+            fullName,
+            email,
+            course,
+            yearLevel,
+            dateCreated
+        FROM student
+        ORDER BY dateCreated DESC";
+        
+        $result = $db->query($query);
+        
+        if (!$result) {
+            throw new Exception('Database query failed: ' . $db->error);
+        }
+        
+        $students = [];
+        while ($row = $result->fetch_assoc()) {
+            $students[] = $row;
+        }
+        
+        return [
+            'status' => 'success',
+            'data' => $students
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ];
+    }
+}
+
+/**
+ * Search for students by student number pattern
+ * @param string $studentNoPattern - Student number pattern to search for
+ * @return array - Array of matching students
+ */
+function searchStudentsByNoPattern($studentNoPattern) {
+    global $db;
+    
+    try {
+        $studentNoPattern = $db->real_escape_string($studentNoPattern);
+        
+        $query = "SELECT
+            studentNo,
+            fullName,
+            email,
+            course,
+            yearLevel,
+            dateCreated
+        FROM student
+        WHERE studentNo LIKE '%$studentNoPattern%'
+        ORDER BY dateCreated DESC";
+        
+        $result = $db->query($query);
+        
+        if (!$result) {
+            throw new Exception('Database query failed: ' . $db->error);
+        }
+        
+        $students = [];
+        while ($row = $result->fetch_assoc()) {
+            $students[] = $row;
+        }
+        
+        return [
+            'status' => 'success',
+            'data' => $students
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ];
+    }
+}
+
 ?>

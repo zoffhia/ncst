@@ -95,7 +95,7 @@
                 $_SESSION['admin_name'] = $fullName;
                 $_SESSION['admin_role'] = 'admin';
                 $_SESSION['logged_in'] = true;
-
+            
                 return [
                     'status' => 'success',
                     'message' => 'Login successful! Welcome back, ' . $fullName . '!',
@@ -146,7 +146,7 @@
                     default:
                         $redirect_url = '/ncst/portals/employee_login.php';
                 }
-
+            
                 return [
                     'status' => 'success',
                     'message' => 'Login successful! Welcome back, ' . $employee['firstName'] . '!',
@@ -256,10 +256,7 @@
                 ]);
                 exit;
         }
-
-        header('Cache-Control: no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-        header('Expires: 0');
+        
         echo json_encode($result);
         exit;
     }
@@ -278,16 +275,13 @@
                 $redirectUrl = '/ncst/logins/admin_login.php';
                 break;
             case 'employee':
-                $redirectUrl = '/ncst/index.php';
+                $redirectUrl = '/ncst/logins/employee_login.php';
                 break;
             case 'student':
-                $redirectUrl = '/ncst/index.php';
+                $redirectUrl = '/ncst/logins/student_login.php';
                 break;
         }
-
-        header('Cache-Control: no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-        header('Expires: 0');
+    
         echo json_encode([
             'status' => 'success',
             'message' => $message,
