@@ -6,7 +6,6 @@ createApp({
             students: [],
             loading: false,
             showModal: false,
-            showQueueModal: false,
             selectedStudent: null,
             studentInfo: null,
             requirements: {
@@ -15,7 +14,6 @@ createApp({
                 goodMoral: false,
                 idPicture: false
             },
-            queue: [],
             showExportDropdown: false,
             message: '',
             messageType: ''
@@ -148,56 +146,6 @@ createApp({
             }
         },
 
-        addToQueue(studentID) {
-            const student = this.students.find(s => s.studentID === studentID);
-            if (student && !this.queue.find(q => q.studentID === studentID)) {
-                this.queue.push(student);
-                this.showMessage(`${student.fullName} added to queue`, 'success');
-            } else if (this.queue.find(q => q.studentID === studentID)) {
-                this.showMessage('Student already in queue', 'warning');
-            }
-        },
-
-        removeFromQueue(index) {
-            const student = this.queue[index];
-            this.queue.splice(index, 1);
-            this.showMessage(`${student.fullName} removed from queue`, 'info');
-        },
-
-        openQueueModal() {
-            this.showQueueModal = true;
-        },
-
-        closeQueueModal() {
-            this.showQueueModal = false;
-        },
-
-        processQueue() {
-            if (this.queue.length === 0) {
-                this.showMessage('No students in queue to process', 'warning');
-                return;
-            }
-
-            this.queue.forEach((student, index) => {
-                setTimeout(() => {
-                    this.generateStudentID(student);
-                    if (index === this.queue.length - 1) {
-                        this.queue = [];
-                        this.showMessage('All IDs generated successfully!', 'success');
-                        this.closeQueueModal();
-                    }
-                }, index * 1000);
-            });
-
-            this.showMessage('Processing queue...', 'info');
-        },
-
-        generateStudentID(student) {
-            console.log('Generating ID for student:', student.fullName);
-
-            this.createStudentRecord(student);
-        },
-
         async createStudentRecord(student) {
             try {
                 const formData = new FormData();
@@ -217,6 +165,9 @@ createApp({
                 
                 if (data.status === 'success') {
                     this.showMessage(`Student ID generated for ${student.fullName}: ${data.studentNo}`, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
                     this.showMessage(`Error generating ID for ${student.fullName}: ${data.message}`, 'error');
                 }

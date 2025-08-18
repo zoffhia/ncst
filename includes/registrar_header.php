@@ -14,6 +14,7 @@
     <link rel="icon" href="/ncst/img/ncst-edu-icon.png">
     <script src="/ncst/js/tailwind-css.js"></script>
     <script src="/ncst/js/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/ncst/css/custom_animation.css">
     <link rel="stylesheet" href="/ncst/css/sweetalert2.min.css">
     <script src="/ncst/js/sweetalert2.min.js"></script>

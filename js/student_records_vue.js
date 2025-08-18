@@ -7,17 +7,10 @@ createApp({
             studentInfo: null,
             loading: false,
             hasSearched: false,
+            filterStatus: 'active',
             message: '',
-            messageType: '',
-            enrolledStudents: [],
-
-            mounted() {
-            this.fetchEnrolledStudents(); // Auto-load enrolled list
-}
-
+            messageType: ''
         }
-
-        
     },
 
     methods: {

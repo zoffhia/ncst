@@ -2,16 +2,51 @@
 include_once(__DIR__.'/../includes/config.php');
 
 /**
+ * Check if a student already exists in the database
+ * @param string $email
+ * @param string $firstName
+ * @param string $lastName
+ * @param string $birthDate
+ * @return bool - True if duplicate exists, false otherwise
+ */
+
+function isDuplicateStudent($email, $firstName, $lastName, $birthDate) {
+    global $db;
+
+    $query = "SELECT studentID FROM stud_reg_info 
+              WHERE email = ? OR (firstName = ? AND lastName = ? AND birthDate = ?)";
+
+    $stmt = $db->prepare($query);
+    if (!$stmt) {
+        throw new Exception('Duplication check failed: ' . $db->error);
+    }
+
+    $stmt->bind_param("ssss", $email, $firstName, $lastName, $birthDate);
+    $stmt->execute();
+    $stmt->store_result();
+
+    $isDuplicate = $stmt->num_rows > 0;
+
+    $stmt->close();
+    return $isDuplicate;
+}
+
+/**
  * Insert admission data into database
  * @param array $student - Student information
  * @param array $education - Educational background
  * @param array $parent - Parent/Guardian information
  * @return array - Response with status and message
  */
-
-
 function insertAdmission($student, $education, $parent) {
     global $db;
+
+    if (isDuplicateStudent($student['email'], $student['firstName'], $student['lastName'], $student['birthDate'])) {
+        return [
+            'status' => 'error',
+            'message' => 'Duplicate admission detected. This student already had an admission record.',
+        ];
+    }
     
     try {
         $db->begin_transaction();
@@ -196,68 +231,6 @@ function getAllStudentRegistrations() {
         ];
     }
 }
-function searchStudentByEmail($email) {
-    global $db;
-
-    try {
-        $email = $db->real_escape_string($email);
-
-        $query = "SELECT 
-                    studentID,
-                    CONCAT(firstName, ' ', COALESCE(midName, ''), ' ', lastName, ' ', COALESCE(suffix, '')) as fullName,
-                    email,
-                    course,
-                    yearLevel,
-                    dateSubmitted,
-                    isApproved
-                  FROM stud_reg_info
-                  WHERE email = '$email'";
-
-        $result = $db->query($query);
-
-        if (!$result) {
-            throw new Exception('Database query failed: ' . $db->error);
-        }
-
-        if ($result->num_rows === 0) {
-            return [
-                'status' => 'error',
-                'message' => 'No student found with this email address'
-            ];
-        }
-
-        $student = $result->fetch_assoc();
-
-        // Convert status code to text
-        switch ($student['isApproved']) {
-            case 1:
-                $status = 'Approved';
-                break;
-            case 2:
-                $status = 'Rejected';
-                break;
-            case 3:
-                $status = 'Processed';
-                break;
-            default:
-                $status = 'Pending';
-        }
-
-        $student['status'] = $status;
-
-        return [
-            'status' => 'success',
-            'data' => $student
-        ];
-
-    } catch (Exception $e) {
-        return [
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ];
-    }
-}
-
 
 /**
  * Get detailed student information by ID
@@ -317,29 +290,27 @@ function approveStudentAdmission($studentID) {
     
     try {
         $studentID = $db->real_escape_string($studentID);
-        
-        $query = "UPDATE stud_reg_info SET isApproved = 1 WHERE studentID = '$studentID'";
-        $result = $db->query($query);
-        
-        if (!$result) {
-            throw new Exception('Database update failed: ' . $db->error);
+
+        $db->begin_transaction();
+
+        $updateQuery = "UPDATE stud_reg_info SET isApproved = 1 WHERE studentID = '$studentID'";
+        if (!$db->query($updateQuery)) {
+            throw new Exception('Approval failed: ' . $db->error);
         }
-        
-        if ($db->affected_rows === 0) {
-            throw new Exception('Student not found');
+
+        $queueQuery = "INSERT INTO student_queue (studentID) VALUES ('$studentID')";
+        if (!$db->query($queueQuery)) {
+            throw new Exception('Queue insertion failed: ' . $db->error);
         }
-        
-        return [
-            'status' => 'success',
-            'message' => 'Student admission approved successfully!'
-        ];
-        
+
+        $db->commit();
+
+        return ['status' => 'success', 'message' => 'Student approved and queued for ID generation'];
     } catch (Exception $e) {
-        return [
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ];
+        $db->rollback();
+        return ['status' => 'error', 'message' => $e->getMessage()];
     }
+
 }
 
 /**
@@ -409,6 +380,35 @@ function archiveStudent($studentID) {
             'status' => 'error',
             'message' => $e->getMessage()
         ];
+    }
+}
+
+function processQueueBatch($limit = 10) {
+    global $db;
+
+    try {
+        $query = "SELECT q.studentID, s.fullName, s.email, s.course, s.yearLevel
+                  FROM student_queue q
+                  JOIN stud_reg_info s ON q.studentID = s.studentID
+                  WHERE q.status = 'pending'
+                  ORDER BY q.dateQueued ASC
+                  LIMIT $limit";
+
+        $result = $db->query($query);
+        if (!$result) throw new Exception('Queue fetch failed: ' . $db->error);
+
+        $processed = [];
+        while ($row = $result->fetch_assoc()) {
+            $record = createStudentRecord($row['studentID'], $row['fullName'], $row['email'], $row['course'], $row['yearLevel']);
+            if ($record['status'] === 'success') {
+                $db->query("UPDATE student_queue SET status = 'done' WHERE studentID = '{$row['studentID']}'");
+                $processed[] = $record['studentNo'];
+            }
+        }
+
+        return ['status' => 'success', 'processed' => $processed];
+    } catch (Exception $e) {
+        return ['status' => 'error', 'message' => $e->getMessage()];
     }
 }
 
@@ -566,14 +566,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $studentNo = $_POST['studentNo'];
             $response = searchStudentById($studentNo);
             break;
-        case 'get_all_enrolled_students':
-            $response = getAllEnrolledStudents();
+        case 'get_archived_students':
+            $response = getArchivedStudents();
             break;
-        case 'search_students_by_no_pattern':
-            $studentNoPattern = $_POST['studentNoPattern'];
-            $response = searchStudentsByNoPattern($studentNoPattern);
-            break;
-
         default:
             $response = [
                 'status' => 'error',
@@ -584,91 +579,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     echo json_encode($response);
     exit;
 }
-
-/**
- * Get all enrolled students
- * @return array - Array of enrolled students
- */
-function getAllEnrolledStudents() {
-    global $db;
-    
-    try {
-        $query = "SELECT
-            studentNo,
-            fullName,
-            email,
-            course,
-            yearLevel,
-            dateCreated
-        FROM student
-        ORDER BY dateCreated DESC";
-        
-        $result = $db->query($query);
-        
-        if (!$result) {
-            throw new Exception('Database query failed: ' . $db->error);
-        }
-        
-        $students = [];
-        while ($row = $result->fetch_assoc()) {
-            $students[] = $row;
-        }
-        
-        return [
-            'status' => 'success',
-            'data' => $students
-        ];
-        
-    } catch (Exception $e) {
-        return [
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ];
-    }
-}
-
-/**
- * Search for students by student number pattern
- * @param string $studentNoPattern - Student number pattern to search for
- * @return array - Array of matching students
- */
-function searchStudentsByNoPattern($studentNoPattern) {
-    global $db;
-    
-    try {
-        $studentNoPattern = $db->real_escape_string($studentNoPattern);
-        
-        $query = "SELECT
-            studentNo,
-            fullName,
-            email,
-            course,
-            yearLevel,
-            dateCreated
-        FROM student
-        WHERE studentNo LIKE '%$studentNoPattern%'
-        ORDER BY dateCreated DESC";
-        
-        $result = $db->query($query);
-        
-        if (!$result) {
-            throw new Exception('Database query failed: ' . $db->error);
-        }
-        
-        $students = [];
-        while ($row = $result->fetch_assoc()) {
-            $students[] = $row;
-        }
-        
-        return [
-            'status' => 'success',
-            'data' => $students
-        ];
-        
-    } catch (Exception $e) {
-        return [
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ];
-    }
-}
+?>

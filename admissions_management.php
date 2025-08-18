@@ -25,7 +25,7 @@ include('includes/registrar_header.php');
     
     <!-- Table -->
     <div v-else class="overflow-x-auto">
-                    <table class="w-full border-collapse border border-gray-300">
+       <table class="w-full border-collapse border border-gray-300">
          <thead>
            <tr class="bg-blue-950 text-white">
              <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
@@ -50,14 +50,8 @@ include('includes/registrar_header.php');
              <td class="border border-gray-300 px-4 py-2">
                <button @click="openModal(student.studentID)" class="bg-blue-600 text-white px-3 py-1 rounded mr-2 hover:bg-blue-700">View</button>
                <button @click="archiveStudent(student.studentID)" class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">Archive</button>
-               <button v-if="student.status === 'Approved'" @click="addToQueue(student.studentID)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 ml-2 rounded">
-                 Add to Queue
-               </button>
-               <button v-else-if="student.status === 'Processed'" disabled class="bg-blue-400 text-white px-4 py-1 ml-2 rounded cursor-not-allowed">
-                 ID Generated
-               </button>
-               <button v-else disabled class="bg-gray-400 text-white px-4 py-1 ml-2 rounded cursor-not-allowed">
-                 Add to Queue
+               <button v-if="student.status === 'Approved'" @click="createStudentRecord(student)" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 ml-2 rounded transition duration-200 ease-in-out">
+                Generate Student No
                </button>
              </td>
            </tr>
@@ -71,12 +65,6 @@ include('includes/registrar_header.php');
     <!-- Export Button -->
     <div class="p-4 md:ml-64">
       <div class="max-w-7xl mx-auto flex justify-end space-x-2">
-                 <button @click="openQueueModal" class="bg-blue-950 text-white px-4 py-2 rounded-lg hover:bg-blue-900 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          View Queue ({{ queue.length }})
-        </button>
         <div class="relative">
           <button @click="toggleExportDropdown" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -310,46 +298,6 @@ include('includes/registrar_header.php');
        </div>
   </div>
   
-  <!-- ID Generation Queue Modal -->
-  <div v-if="showQueueModal" class="fixed inset-0 backdrop-blur-sm bg-blue-900/60 flex items-center justify-center z-50">
-    <div class="bg-white p-6 w-full max-w-2xl rounded-lg shadow-lg">
-      <h2 class="text-lg font-semibold mb-4">ID Generation Queue</h2>
-      
-      <div v-if="queue.length === 0" class="text-center py-8 text-gray-500">
-        <p>No students in queue</p>
-        <div class="mt-4 flex justify-end">
-          <button @click="closeQueueModal" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Close</button>
-        </div>
-      </div>
-      
-      <div v-else>
-        <div class="mb-4">
-          <h3 class="font-medium text-gray-700 mb-2">Students in Queue:</h3>
-          <div class="space-y-2 max-h-60 overflow-y-auto">
-            <div v-for="(student, index) in queue" :key="student.studentID" class="flex items-center justify-between p-3 bg-gray-50 rounded">
-              <div>
-                <p class="font-medium">{{ student.fullName }}</p>
-                <p class="text-sm text-gray-600">{{ student.email }}</p>
-              </div>
-              <div class="flex space-x-2">
-                <span class="text-sm text-gray-500">#{{ index + 1 }}</span>
-                <button @click="removeFromQueue(index)" class="text-red-600 hover:text-red-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="flex justify-end space-x-2">
-          <button @click="processQueue" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Process Queue</button>
-          <button @click="closeQueueModal" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Vue.js -->
