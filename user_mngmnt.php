@@ -203,7 +203,7 @@
   </div>
 
   <!-- Vue.js Modal -->
-  <div v-if="showModal" class="fixed inset-0 z-50 backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center" style="display: none;" :style="{ display: showModal ? 'flex' : 'none' }">
+  <div v-show="showModal" class="fixed inset-0 z-50 backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center">
     <div class="bg-white rounded-lg p-6 w-full max-w-2xl shadow-lg max-h-[90vh] overflow-y-auto">
       <h2 class="text-xl font-bold mb-4">{{ isEditing ? 'Edit User' : 'Add User' }}</h2>
       <div v-if="message" :class="messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="p-3 rounded mb-4">

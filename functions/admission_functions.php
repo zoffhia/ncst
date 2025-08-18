@@ -8,6 +8,8 @@ include_once(__DIR__.'/../includes/config.php');
  * @param array $parent - Parent/Guardian information
  * @return array - Response with status and message
  */
+
+
 function insertAdmission($student, $education, $parent) {
     global $db;
     
@@ -194,6 +196,68 @@ function getAllStudentRegistrations() {
         ];
     }
 }
+function searchStudentByEmail($email) {
+    global $db;
+
+    try {
+        $email = $db->real_escape_string($email);
+
+        $query = "SELECT 
+                    studentID,
+                    CONCAT(firstName, ' ', COALESCE(midName, ''), ' ', lastName, ' ', COALESCE(suffix, '')) as fullName,
+                    email,
+                    course,
+                    yearLevel,
+                    dateSubmitted,
+                    isApproved
+                  FROM stud_reg_info
+                  WHERE email = '$email'";
+
+        $result = $db->query($query);
+
+        if (!$result) {
+            throw new Exception('Database query failed: ' . $db->error);
+        }
+
+        if ($result->num_rows === 0) {
+            return [
+                'status' => 'error',
+                'message' => 'No student found with this email address'
+            ];
+        }
+
+        $student = $result->fetch_assoc();
+
+        // Convert status code to text
+        switch ($student['isApproved']) {
+            case 1:
+                $status = 'Approved';
+                break;
+            case 2:
+                $status = 'Rejected';
+                break;
+            case 3:
+                $status = 'Processed';
+                break;
+            default:
+                $status = 'Pending';
+        }
+
+        $student['status'] = $status;
+
+        return [
+            'status' => 'success',
+            'data' => $student
+        ];
+
+    } catch (Exception $e) {
+        return [
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ];
+    }
+}
+
 
 /**
  * Get detailed student information by ID
@@ -509,6 +573,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $studentNoPattern = $_POST['studentNoPattern'];
             $response = searchStudentsByNoPattern($studentNoPattern);
             break;
+
         default:
             $response = [
                 'status' => 'error',
@@ -607,5 +672,3 @@ function searchStudentsByNoPattern($studentNoPattern) {
         ];
     }
 }
-
-?>

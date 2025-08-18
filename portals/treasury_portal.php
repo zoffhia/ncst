@@ -1,4 +1,24 @@
-<?php include('../includes/treasury_header.php'); ?>
+<?php 
+include('../includes/treasury_header.php'); 
+include('../functions/payment_functions.php');
+
+$studentId = $_POST['studentId'] ?? '';
+$paymentType = $_POST['paymentType'] ?? '';
+
+$studentInfo = null;
+$amountDue = null;
+$errorMessage = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $studentInfo = searchStudentById($studentId);
+    if (!$studentInfo) {
+        $errorMessage = "Student not found.";
+    } else {
+        $amountDue = getPaymentAmount($studentId, $paymentType);
+    }
+}
+?>
+
 
 <div class="px-4 md:px-6 py-6 md:ml-64 mt-20">
 

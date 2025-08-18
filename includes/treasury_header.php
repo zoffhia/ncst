@@ -1,8 +1,4 @@
 <?php 
-    /*include('config.php');
-    include('student_session.php');
-
-    checkStudentSession();*/
     include(__DIR__ . '/../functions/saving_session.php');
 ?>
 

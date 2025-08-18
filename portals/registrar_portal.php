@@ -19,7 +19,14 @@
   <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 animation-fade-bottom">
     <div class="bg-white p-5 rounded-lg shadow border-l-4 border-blue-600">
       <h2 class="text-gray-600 text-sm font-medium">Enrolled Students</h2>
-      <p class="text-2xl font-semibold text-gray-900">1,235</p>
+      <?php
+        $result = $db->query("SELECT COUNT(*) as count FROM student");
+        
+        $row = $result->fetch_assoc();
+        $enrolledCount = $row['count'];
+        ?>
+      <p class="text-2xl font-semibold text-gray-900"><?php echo number_format($enrolledCount); ?></p>
+
     </div>
     <div class="bg-white p-5 rounded-lg shadow border-l-4 border-orange-500">
       <h2 class="text-gray-600 text-sm font-medium">Total Applications</h2>
@@ -49,36 +56,6 @@
       <canvas id="enrolledDonut" height="200"></canvas>
     </div>
   </div>
-
-  <!-- Recent Applications Table -->
-  <div class="mt-10 animation-fade-bottom">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Recent Applications</h2>
-    <div class="bg-white rounded-lg shadow p-4 overflow-x-auto">
-      <table class="min-w-full text-sm text-left text-gray-700">
-        <thead class="bg-gray-100 text-xs text-gray-700 uppercase">
-          <tr>
-            <th class="px-4 py-2">Application ID</th>
-            <th class="px-4 py-2">Name</th>
-            <th class="px-4 py-2">Date</th>
-            <th class="px-4 py-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b">
-            <td class="px-4 py-2">1001</td>
-            <td class="px-4 py-2">Rodrigo Galauran JUNIOR</td>
-            <td class="px-4 py-2">July 20, 2025</td>
-            <td class="px-4 py-2 text-green-600 font-medium">Approved</td>
-          </tr>
-          <tr class="border-b">
-            <td class="px-4 py-2">1002</td>
-            <td class="px-4 py-2">John Benedict Congson</td>
-            <td class="px-4 py-2">July 19, 2025</td>
-            <td class="px-4 py-2 text-yellow-500 font-medium">Pending</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
 </div> <!-- closes main content container -->

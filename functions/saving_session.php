@@ -186,7 +186,7 @@
                 
                 return [
                     'status' => 'success',
-                    'message' => 'Login successful!<br>Welcome back, ' . $student['fullName'] . '!',
+                    'message' => 'Login successful! Welcome back, ' . $student['fullName'] . '!',
                     'redirect' => '/ncst/portals/student_portal.php'
                 ];
             }
@@ -264,8 +264,7 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'logout') {
         $userType = $_POST['user_type'] ?? '';
         
-        session_unset();
-        session_destroy();
+        
         
         $redirectUrl = '/ncst/index.php'; // default
         $message = 'You have been successfully logged out.';
@@ -281,6 +280,9 @@
                 $redirectUrl = '/ncst/logins/student_login.php';
                 break;
         }
+
+        session_unset();
+        session_destroy();
     
         echo json_encode([
             'status' => 'success',
